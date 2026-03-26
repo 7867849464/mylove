@@ -2,442 +2,270 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>屠新宇与孙睿颖的故事</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的故事</title>
     <style>
-        :root {
-            --h: 800px;
-            --blue: #92CBCA;
-            --blue-dark: #7FBFBA;
-            --gap-text: 40px;
-            --gap-time: calc(120px + var(--gap-text) / 2);
-        }
-
         * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
         }
-
-        .daibiao {
-            width: 100%;
-            height: 50px;
-            line-height: 50px;
-            background-color: var(--blue);
+        body {
+            background-color: #f0f3f5;
+        }
+        /* 顶部标题栏 */
+        .header {
+            background-color: #80cbc4;
             color: white;
             text-align: center;
-            margin: 0 auto 0;
-            clear: both;
-            font-size: 1.6em;
+            padding: 15px 0;
+            font-size: 24px;
+            font-weight: bold;
         }
-
-        #timeline {
-            position: relative;
-            margin: 0px auto;
-            padding: 20px;
-            height: var(--h);
-            box-sizing: border-box;
-        }
-
-        #timeline::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            width: 2px;
-            height: calc(var(--h) - 40px);
-            background: var(--blue-dark);
-        }
-
-        #timeline ul {
-            margin: 0;
-            padding: 0;
-        }
-
-        #timeline ul li {
-            list-style: none;
-            line-height: normal;
-            position: relative;
-            width: 50%;
-            box-sizing: border-box;
-        }
-
-        #timeline ul li:nth-child(odd) {
-            float: left;
-            text-align: right;
-            clear: both;
-            padding: 20px var(--gap-text) 20px 0;
-        }
-
-        #timeline ul li:nth-child(even) {
-            float: right;
-            text-align: left;
-            clear: both;
-            padding: 20px 0 20px var(--gap-text);
-        }
-
-        #timeline ul li:nth-child(odd)::before {
-            content: '';
-            position: absolute;
-            top: 24px;
-            right: -6px;
-            width: 10px;
-            height: 10px;
-            background: var(--blue-dark);
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
-        }
-
-        #timeline ul li:nth-child(even)::before {
-            content: '';
-            position: absolute;
-            top: 24px;
-            left: -4px;
-            width: 10px;
-            height: 10px;
-            background: var(--blue-dark);
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
-        }
-
-        #timeline ul li h3 {
-            margin: 0;
-            padding: 0;
-            font-weight: 600;
-            color: rgba(71, 68, 59, 1);
-            font-size: 1.2em;
-        }
-
-        #timeline ul li p {
-            margin: 10px 0 0;
-            padding: 0;
-            font-size: 1em;
-            line-height: 1.2;
-        }
-
-        #timeline ul li p div {
+        .sub-title {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
             margin: 10px 0;
         }
-
-        #timeline ul li .time h4 {
-            margin: 0;
-            padding: 0;
-            font-size: 1em;
+        /* 时间线容器 */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
-
-        @media screen and (max-width: 580px) {
-            :root {
-                --gap-text: 20px;
-            }
-
-            #timeline ul li h3 {
-                font-size: 1.1em;
-            }
-
-            #timeline ul li p {
-                font-size: .8em;
-            }
-
-            #timeline ul li .time h4 {
-                font-size: .9em;
-            }
-
-            #timeline {
-                padding: 20px 5px;
-            }
-        }
-
-        #timeline ul li:nth-child(odd) .time {
+        /* 中间竖线 */
+        .timeline::before {
+            content: '';
             position: absolute;
-            top: 10px;
-            right: calc(-1 * var(--gap-time));
-            margin: 0;
-            padding: 5px 15px;
-            background: var(--blue);
-            color: white;
-            border-radius: 15px;
-            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background-color: #80cbc4;
         }
-
-        #timeline ul li:nth-child(even) .time {
+        /* 时间线条目 */
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            width: 50%;
+        }
+        .timeline-item.left {
+            left: 0;
+            padding-right: 40px;
+            text-align: right;
+        }
+        .timeline-item.right {
+            left: 50%;
+            padding-left: 40px;
+        }
+        /* 圆点标记 */
+        .timeline-item::after {
+            content: '';
             position: absolute;
-            top: 10px;
-            left: calc(-1 * var(--gap-time));
-            margin: 0;
-            padding: 5px 15px;
-            background: var(--blue);
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #80cbc4;
+            border: 3px solid white;
+        }
+        .timeline-item.left::after {
+            right: -6px;
+        }
+        .timeline-item.right::after {
+            left: -6px;
+        }
+        /* 日期标签 */
+        .date-tag {
+            display: inline-block;
+            background-color: #80cbc4;
             color: white;
-            border-radius: 15px;
-            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
-        }
-
-        #timeline ul li .time {
-            font-size: .9em;
-        }
-
-        .add-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .add-link button {
-            background: var(--blue);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 10px;
-            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 14px;
+            margin-bottom: 8px;
         }
-
-        .add-link button:hover {
-            background: var(--blue-dark);
+        /* 标题和内容 */
+        .item-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
         }
-
-        .foot {
-            margin: 30px;
+        .item-content {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.6;
+        }
+        /* 底部署名 */
+        .footer {
             text-align: center;
-            color: gray;
+            color: #777;
+            font-size: 14px;
+            margin: 50px 0 20px;
         }
-
-        /* 弹窗样式 */
+        /* 添加按钮 */
+        .add-btn {
+            display: block;
+            width: 200px;
+            height: 45px;
+            line-height: 45px;
+            background-color: #80cbc4;
+            color: white;
+            text-align: center;
+            border-radius: 25px;
+            margin: 30px auto;
+            cursor: pointer;
+            font-size: 16px;
+            border: none;
+        }
+        .add-btn:hover {
+            background-color: #60b0a8;
+        }
+        /* 弹窗表单 */
         .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
+            background-color: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            z-index: 999;
         }
-
         .modal-content {
-            background: white;
+            background-color: white;
             padding: 25px;
-            border-radius: 15px;
-            width: 85%;
-            max-width: 350px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
         }
-
-        .modal-content input,
-        .modal-content textarea {
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .modal-content input, .modal-content textarea {
             width: 100%;
+            padding: 10px;
             margin: 8px 0;
-            padding: 8px;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
+            border-radius: 5px;
+            font-size: 14px;
         }
-
         .modal-content textarea {
-            min-height: 80px;
             resize: none;
+            height: 80px;
         }
-
         .modal-btns {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 15px;
         }
-
         .modal-btns button {
-            padding: 6px 12px;
+            padding: 8px 18px;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
         }
-
-        #saveBtn {
-            background: var(--blue);
+        .btn-save {
+            background-color: #80cbc4;
             color: white;
         }
-
-        #cancelBtn {
-            background: #eee;
+        .btn-cancel {
+            background-color: #ddd;
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="daibiao">我们的故事</h2>
-        <p class="add-link">
-            <button onclick="openModal()">➕ 添加新故事</button>
-        </p>
-        <div id="timeline">
-            <ul id="ulul">
-                <li id="loading">
-                    <div class="content">
-                        <h3>加载中</h3>
-                        <p>从今天开始<br />记录每一点一滴吧</p>
-                    </div>
-                    <div class="time">
-                        <h4>(≧◡≦)</h4>
-                    </div>
-                </li>
-            </ul>
+    <div class="header">我们的故事</div>
+    <div class="sub-title">经历由我们创造</div>
+
+    <div class="timeline" id="timeline">
+        <!-- 初始条目 -->
+        <div class="timeline-item left">
+            <div class="item-title">txy与sry的故事</div>
+            <div class="item-content">我们从此刻相遇，从此时间便有了故事</div>
+        </div>
+        <div class="timeline-item right">
+            <div class="date-tag">2026-03-25</div>
         </div>
     </div>
 
-    <!-- 添加弹窗 -->
-    <div class="modal" id="addModal">
+    <button class="add-btn" id="addBtn">+ 添加新故事</button>
+    <div class="footer">爱你，sry</div>
+
+    <!-- 弹窗表单 -->
+    <div class="modal" id="modal">
         <div class="modal-content">
-            <h3>记录我们的故事</h3>
-            <input type="text" id="titleInput" placeholder="输入标题">
-            <textarea id="contentInput" placeholder="输入内容..."></textarea>
+            <h3>添加新故事</h3>
+            <input type="text" id="newTitle" placeholder="输入标题">
+            <textarea id="newContent" placeholder="输入内容描述"></textarea>
+            <input type="date" id="newDate">
             <div class="modal-btns">
-                <button id="cancelBtn" onclick="closeModal()">取消</button>
-                <button id="saveBtn" onclick="saveStory()">保存</button>
+                <button class="btn-cancel" id="cancelBtn">取消</button>
+                <button class="btn-save" id="saveBtn">保存</button>
             </div>
         </div>
-    </div>
-
-    <div class="foot">
-        <p>爱你，sry</p>
     </div>
 
     <script>
-        // 格式化时间
-        function formatTimestamp(timestamp) {
-            const date = new Date(timestamp);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+        const addBtn = document.getElementById('addBtn');
+        const modal = document.getElementById('modal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const timeline = document.getElementById('timeline');
 
-        // 自动计算高度
-        function evaluate_height() {
-            const lis = document.querySelectorAll("#timeline > ul > li");
-            let fullHeight = 0;
-            lis.forEach(item => {
-                fullHeight += item.getClientRects()[0].height;
-            });
-            fullHeight += 200;
-            document.documentElement.style.setProperty('--h', String(Math.max(fullHeight, 800)) + 'px');
-        }
+        // 打开弹窗
+        addBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
 
-        // 本地存储读取
-        function getLocalStories() {
-            const data = localStorage.getItem('our_story');
-            return data ? JSON.parse(data) : [];
-        }
+        // 关闭弹窗
+        cancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newContent').value = '';
+            document.getElementById('newDate').value = '';
+        });
 
-        // 保存到本地
-        function saveLocalStories(list) {
-            localStorage.setItem('our_story', JSON.stringify(list));
-        }
+        // 保存新条目
+        saveBtn.addEventListener('click', () => {
+            const title = document.getElementById('newTitle').value;
+            const content = document.getElementById('newContent').value;
+            const date = document.getElementById('newDate').value;
 
-        // 初始数据（第一次打开时用）
-        let defaultData = [
-            {
-                "id": 2,
-                "time": 1774396800,
-                "title": "txy与sry的故事",
-                "content": "我们从此刻相遇，从此时间便有了故事"
-            }
-        ];
-
-        let pageLock = false;
-
-        // 初始化
-        async function main() {
-            let localData = getLocalStories();
-            
-            // 第一次打开，存入默认数据
-            if (localData.length === 0) {
-                localData = defaultData;
-                saveLocalStories(localData);
-            }
-
-            const loadingElement = document.getElementById("loading");
-            if (loadingElement) loadingElement.remove();
-
-            rend_blocks(localData);
-        }
-
-        // 生成单条故事
-        function generate_blocks(title, content, time) {
-            const li = document.createElement("li");
-            li.innerHTML = `
-            <div class="content">
-                <h3 class="t0"></h3>
-                <p class="t1"></p>
-            </div>
-            <div class="time">
-                <h4 class="t2"></h4>
-            </div>
-            `;
-            function bind(name, val) {
-                const geter = li.getElementsByClassName(name);
-                if (geter.length === 1) {
-                    geter[0].innerText = val;
-                }
-            }
-            bind("t0", title);
-            const contentList = content.split("\n");
-            contentList.forEach(con => {
-                const div = document.createElement("div");
-                div.innerText = con;
-                li.getElementsByClassName("t1")[0].appendChild(div);
-            });
-            bind("t2", time);
-            return li;
-        }
-
-        // 渲染所有故事
-        function rend_blocks(data) {
-            const ul = document.getElementById("ulul");
-            ul.innerHTML = '';
-            data.forEach(item => {
-                const myblock = generate_blocks(item.title, item.content, formatTimestamp(item.time * 1000));
-                ul.appendChild(myblock);
-            });
-            evaluate_height();
-            pageLock = false;
-        }
-
-        // ================== 新增功能：弹窗 ==================
-        function openModal() {
-            document.getElementById('addModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('addModal').style.display = 'none';
-            document.getElementById('titleInput').value = '';
-            document.getElementById('contentInput').value = '';
-        }
-
-        // 保存新故事
-        function saveStory() {
-            const title = document.getElementById('titleInput').value.trim();
-            const content = document.getElementById('contentInput').value.trim();
-            
-            if (!title || !content) {
-                alert('请输入完整的标题和内容');
+            if (!title || !content || !date) {
+                alert('请填写完整信息！');
                 return;
             }
 
-            const now = Math.floor(Date.now() / 1000);
-            const newStory = {
-                id: Date.now(),
-                time: now,
-                title: title,
-                content: content
-            };
+            // 交替左右布局
+            const items = document.querySelectorAll('.timeline-item');
+            const isLeft = items.length % 2 === 0;
 
-            // 读取本地数据并追加
-            const data = getLocalStories();
-            data.push(newStory);
-            saveLocalStories(data);
+            // 创建新条目
+            const newItem = document.createElement('div');
+            newItem.className = `timeline-item ${isLeft ? 'left' : 'right'}`;
+            newItem.innerHTML = `
+                <div class="date-tag">${date}</div>
+                <div class="item-title">${title}</div>
+                <div class="item-content">${content}</div>
+            `;
 
-            // 刷新页面
-            rend_blocks(data);
-            closeModal();
-        }
-
-        main();
+            timeline.appendChild(newItem);
+            modal.style.display = 'none';
+            // 清空表单
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newContent').value = '';
+            document.getElementById('newDate').value = '';
+        });
     </script>
 </body>
 </html>
