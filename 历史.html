@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>屠新宇与孙睿颖的故事</title>
+    <style>
+        :root {
+            --h: 800px;
+            --blue: #92CBCA;
+            --blue-dark: #7FBFBA;
+            --gap-text: 40px;
+            --gap-time: calc(120px + var(--gap-text) / 2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .daibiao {
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            background-color: var(--blue);
+            color: white;
+            text-align: center;
+            margin: 0 auto 0;
+            clear: both;
+            font-size: 1.6em;
+        }
+
+        #timeline {
+            position: relative;
+            margin: 0px auto;
+            padding: 20px;
+            height: var(--h);
+            box-sizing: border-box;
+        }
+
+        #timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            width: 2px;
+            height: calc(var(--h) - 40px);
+            background: var(--blue-dark);
+        }
+
+        #timeline ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        #timeline ul li {
+            list-style: none;
+            line-height: normal;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        #timeline ul li:nth-child(odd) {
+            float: left;
+            text-align: right;
+            clear: both;
+            padding: 20px var(--gap-text) 20px 0;
+        }
+
+        #timeline ul li:nth-child(even) {
+            float: right;
+            text-align: left;
+            clear: both;
+            padding: 20px 0 20px var(--gap-text);
+        }
+
+        #timeline ul li:nth-child(odd)::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -6px;
+            width: 10px;
+            height: 10px;
+            background: var(--blue-dark);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
+        }
+
+        #timeline ul li:nth-child(even)::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: -4px;
+            width: 10px;
+            height: 10px;
+            background: var(--blue-dark);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
+        }
+
+        #timeline ul li h3 {
+            margin: 0;
+            padding: 0;
+            font-weight: 600;
+            color: rgba(71, 68, 59, 1);
+            font-size: 1.2em;
+        }
+
+        #timeline ul li p {
+            margin: 10px 0 0;
+            padding: 0;
+            font-size: 1em;
+            line-height: 1.2;
+        }
+
+        #timeline ul li p div {
+            margin: 10px 0;
+        }
+
+        #timeline ul li .time h4 {
+            margin: 0;
+            padding: 0;
+            font-size: 1em;
+        }
+
+        @media screen and (max-width: 580px) {
+            :root {
+                --gap-text: 20px;
+            }
+
+            #timeline ul li h3 {
+                margin: 0;
+                padding: 0;
+                font-weight: 600;
+                color: rgba(71, 68, 59, 1);
+                font-size: 1.1em;
+            }
+
+            #timeline ul li p {
+                font-size: .8em;
+            }
+
+            #timeline ul li .time h4 {
+                margin: 0;
+                padding: 0;
+                font-size: .9em;
+            }
+
+            #timeline {
+                padding: 20px 5px;
+            }
+        }
+
+        #timeline ul li:nth-child(odd) .time {
+            position: absolute;
+            top: 10px;
+            right: calc(-1 * var(--gap-time));
+            margin: 0;
+            padding: 5px 15px;
+            background: var(--blue);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
+        }
+
+        #timeline ul li:nth-child(even) .time {
+            position: absolute;
+            top: 10px;
+            left: calc(-1 * var(--gap-time));
+            margin: 0;
+            padding: 5px 15px;
+            background: var(--blue);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 0 3px rgba(71, 68, 59, 0.2);
+        }
+
+        #timeline ul li .time {
+            font-size: .9em;
+        }
+
+        .add-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .add-link a,
+        .add-link span {
+            /* text-decoration: none; */
+            font-size: .8em;
+            color: gray;
+        }
+
+        .foot {
+            margin: 30px;
+            text-align: center;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="daibiao">我们的故事</h2>
+        <p class="add-link">
+            <!-- <a href="./add.html">经历由我们创造 [进入编辑]</a> -->
+            <span>经历由我们创造</span>
+        </p>
+        <div id="timeline">
+            <ul id="ulul">
+                <li id="loading">
+                    <div class="content">
+                        <h3>加载中</h3>
+                        <p>从今天开始<br />记录每一点一滴吧</p>
+                    </div>
+                    <div class="time">
+                        <h4>(≧◡≦)</h4>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="foot">
+        <p>爱你，sry</p>
+    </div>
+    <script>
+        /***
+         * 屠新宇
+         * 2026.03.25
+         */
+        // 格式化时间
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            // 获取各个部分
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function evaluate_height() {
+            const lis = document.querySelectorAll("#timeline > ul > li");
+            let fullHeight = 0;
+            lis.forEach(item => {
+                fullHeight += item.getClientRects()[0].height;
+            });
+            fullHeight += 200;
+            document.documentElement.style.setProperty('--h', String(Math.max(fullHeight, 800)) + 'px');
+        }
+
+        // time使用秒时间戳
+        let apiResponse = {
+            "code": 0,
+            "msg": "ok",
+            "data": [{
+                    "id": 2,
+                    "time": 1774396800,
+                    "title": "txy与sry的故事",
+                    "content": "我们从此刻相遇，从此时间便有了故事"
+                }
+                            ]
+        };
+
+        async function main() {
+            console.log(apiResponse);
+            if (apiResponse.code) {
+                throw new Error("API Error " + apiResponse);
+            }
+            const loadingElement = document.getElementById("loading");
+            if (loadingElement) loadingElement.remove();
+            if (apiResponse.data.length !== 0) rend_blocks();
+        }
+
+        // window.onscroll = () => {
+        //     if (pageLock) return;
+        //     const lis = [...document.querySelectorAll("#timeline > ul > li")];
+        //     // console.log(lis);
+        //     if (lis.length > 0) {
+        //         const lastLiHeight = lis.slice(-1)[0].getBoundingClientRect().top;
+        //         if (lastLiHeight <= window.innerHeight) {
+        //             pageNum += 1;
+        //             pageLock = true;
+        //             main();
+        //         }
+        //     }
+        // };
+
+        function generate_blocks(title, content, time) {
+            // 构造
+            const li = document.createElement("li");
+            li.innerHTML = `
+            <div class="content">
+                <h3 class="t0"></h3>
+                <p class="t1"></p>
+            </div>
+            <div class="time">
+                <h4 class="t2"></h4>
+            </div>
+            `;
+            function bind(name, val) {
+                const geter = li.getElementsByClassName(name);
+                if (geter.length === 1) {
+                    geter[0].innerText = val;
+                }
+            }
+            bind("t0", title);
+            // bind("t1", content);
+            const contentList = content.split("\n");
+            contentList.forEach(con => {
+                const div = document.createElement("div");
+                div.innerText = con;
+                li.getElementsByClassName("t1")[0].appendChild(div);
+            });
+            bind("t2", time);
+            return li;
+        }
+
+        function rend_blocks() {
+            apiResponse.data.forEach(item => {
+                const myblock = generate_blocks(item.title, item.content, formatTimestamp(item.time * 1000));
+                document.getElementById("ulul").appendChild(myblock);
+            });
+            evaluate_height();
+            pageLock = false;
+        }
+
+        main();
+    </script>
+</body>
+</html>
