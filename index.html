@@ -129,10 +129,6 @@
             }
 
             #timeline ul li h3 {
-                margin: 0;
-                padding: 0;
-                font-weight: 600;
-                color: rgba(71, 68, 59, 1);
                 font-size: 1.1em;
             }
 
@@ -141,8 +137,6 @@
             }
 
             #timeline ul li .time h4 {
-                margin: 0;
-                padding: 0;
                 font-size: .9em;
             }
 
@@ -184,11 +178,18 @@
             margin-top: 20px;
         }
 
-        .add-link a,
-        .add-link span {
-            /* text-decoration: none; */
-            font-size: .8em;
-            color: gray;
+        .add-link button {
+            background: var(--blue);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .add-link button:hover {
+            background: var(--blue-dark);
         }
 
         .foot {
@@ -196,14 +197,73 @@
             text-align: center;
             color: gray;
         }
+
+        /* 弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 85%;
+            max-width: 350px;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            margin: 8px 0;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .modal-content textarea {
+            min-height: 80px;
+            resize: none;
+        }
+
+        .modal-btns {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .modal-btns button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #saveBtn {
+            background: var(--blue);
+            color: white;
+        }
+
+        #cancelBtn {
+            background: #eee;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2 class="daibiao">我们的故事</h2>
         <p class="add-link">
-            <!-- <a href="./add.html">经历由我们创造 [进入编辑]</a> -->
-            <span>经历由我们创造</span>
+            <button onclick="openModal()">➕ 添加新故事</button>
         </p>
         <div id="timeline">
             <ul id="ulul">
@@ -219,24 +279,35 @@
             </ul>
         </div>
     </div>
+
+    <!-- 添加弹窗 -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3>记录我们的故事</h3>
+            <input type="text" id="titleInput" placeholder="输入标题">
+            <textarea id="contentInput" placeholder="输入内容..."></textarea>
+            <div class="modal-btns">
+                <button id="cancelBtn" onclick="closeModal()">取消</button>
+                <button id="saveBtn" onclick="saveStory()">保存</button>
+            </div>
+        </div>
+    </div>
+
     <div class="foot">
         <p>爱你，sry</p>
     </div>
+
     <script>
-        /***
-         * 屠新宇
-         * 2026.03.25
-         */
         // 格式化时间
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
-            // 获取各个部分
             const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+            const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
 
+        // 自动计算高度
         function evaluate_height() {
             const lis = document.querySelectorAll("#timeline > ul > li");
             let fullHeight = 0;
@@ -247,45 +318,47 @@
             document.documentElement.style.setProperty('--h', String(Math.max(fullHeight, 800)) + 'px');
         }
 
-        // time使用秒时间戳
-        let apiResponse = {
-            "code": 0,
-            "msg": "ok",
-            "data": [{
-                    "id": 2,
-                    "time": 1774396800,
-                    "title": "txy与sry的故事",
-                    "content": "我们从此刻相遇，从此时间便有了故事"
-                }
-                            ]
-        };
-
-        async function main() {
-            console.log(apiResponse);
-            if (apiResponse.code) {
-                throw new Error("API Error " + apiResponse);
-            }
-            const loadingElement = document.getElementById("loading");
-            if (loadingElement) loadingElement.remove();
-            if (apiResponse.data.length !== 0) rend_blocks();
+        // 本地存储读取
+        function getLocalStories() {
+            const data = localStorage.getItem('our_story');
+            return data ? JSON.parse(data) : [];
         }
 
-        // window.onscroll = () => {
-        //     if (pageLock) return;
-        //     const lis = [...document.querySelectorAll("#timeline > ul > li")];
-        //     // console.log(lis);
-        //     if (lis.length > 0) {
-        //         const lastLiHeight = lis.slice(-1)[0].getBoundingClientRect().top;
-        //         if (lastLiHeight <= window.innerHeight) {
-        //             pageNum += 1;
-        //             pageLock = true;
-        //             main();
-        //         }
-        //     }
-        // };
+        // 保存到本地
+        function saveLocalStories(list) {
+            localStorage.setItem('our_story', JSON.stringify(list));
+        }
 
+        // 初始数据（第一次打开时用）
+        let defaultData = [
+            {
+                "id": 2,
+                "time": 1774396800,
+                "title": "txy与sry的故事",
+                "content": "我们从此刻相遇，从此时间便有了故事"
+            }
+        ];
+
+        let pageLock = false;
+
+        // 初始化
+        async function main() {
+            let localData = getLocalStories();
+            
+            // 第一次打开，存入默认数据
+            if (localData.length === 0) {
+                localData = defaultData;
+                saveLocalStories(localData);
+            }
+
+            const loadingElement = document.getElementById("loading");
+            if (loadingElement) loadingElement.remove();
+
+            rend_blocks(localData);
+        }
+
+        // 生成单条故事
         function generate_blocks(title, content, time) {
-            // 构造
             const li = document.createElement("li");
             li.innerHTML = `
             <div class="content">
@@ -303,7 +376,6 @@
                 }
             }
             bind("t0", title);
-            // bind("t1", content);
             const contentList = content.split("\n");
             contentList.forEach(con => {
                 const div = document.createElement("div");
@@ -314,13 +386,55 @@
             return li;
         }
 
-        function rend_blocks() {
-            apiResponse.data.forEach(item => {
+        // 渲染所有故事
+        function rend_blocks(data) {
+            const ul = document.getElementById("ulul");
+            ul.innerHTML = '';
+            data.forEach(item => {
                 const myblock = generate_blocks(item.title, item.content, formatTimestamp(item.time * 1000));
-                document.getElementById("ulul").appendChild(myblock);
+                ul.appendChild(myblock);
             });
             evaluate_height();
             pageLock = false;
+        }
+
+        // ================== 新增功能：弹窗 ==================
+        function openModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('titleInput').value = '';
+            document.getElementById('contentInput').value = '';
+        }
+
+        // 保存新故事
+        function saveStory() {
+            const title = document.getElementById('titleInput').value.trim();
+            const content = document.getElementById('contentInput').value.trim();
+            
+            if (!title || !content) {
+                alert('请输入完整的标题和内容');
+                return;
+            }
+
+            const now = Math.floor(Date.now() / 1000);
+            const newStory = {
+                id: Date.now(),
+                time: now,
+                title: title,
+                content: content
+            };
+
+            // 读取本地数据并追加
+            const data = getLocalStories();
+            data.push(newStory);
+            saveLocalStories(data);
+
+            // 刷新页面
+            rend_blocks(data);
+            closeModal();
         }
 
         main();
