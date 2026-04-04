@@ -128,8 +128,10 @@
 <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
         <h3>🤍 我们的故事</h3>
-        <input type="password" id="passwordInput" placeholder="输入口令解锁...（你的阳历生日纯四位数字哦）">
-        <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px;">进入</button>
+        <input type="password" id="passwordInput" placeholder="输入密码解锁编辑模式~（你的生日四位数字）">
+        <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px;">写故事进入~</button>
+        
+        <button onclick="enterAsGuest()" style="background:none; border:1px solid white; color:white; padding:10px; border-radius:25px; width:100%; margin-top:15px; font-size:0.85em;">只是欣赏~</button>
     </div>
 </div>
     <audio id="bgMusic" loop>
@@ -168,14 +170,15 @@
 </div>
 
 <script>
+    let isAdmin = false;
     let bgImages = []; 
     let currentBgIndex = 0;
-    let bgTimer = null; // 计时器变量
-    // --- 请填写你的 Supabase 配置 ---
+    let bgTimer = null; 
+
     const SUPABASE_URL = 'https://vjhzbpzdewthyklhxbmx.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_PPGrvCINKV_SxyxcQ0pygg_JWkMAHgp';
     const CORRECT_PASSWORD = '0319';
-    const START_DATE = '2025-11-12'; // 填入你们相遇的日期，用于计算天数
+    const START_DATE = '2025-11-12'; 
 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -183,22 +186,29 @@
     window.onload = () => {
         updateDays();
         
-        // 检查是否已经解锁过
-        if (localStorage.getItem('unlocked_love') === 'true') {
-            // 如果解锁过，把登录框的内容换成浪漫的欢迎词和开启按钮
+        // 角色判断逻辑
+        const savedRole = localStorage.getItem('unlocked_role');
+        if (savedRole) {
             const loginBox = document.querySelector('.login-box');
             loginBox.innerHTML = `
-                <h3 style="margin-bottom:10px;">欢迎回来 🤍</h3>
-                <p style="font-size:0.9em; color:#666; margin-bottom:20px;">今天又发生了什么好玩的事呢</p>
-                <button onclick="startWithMusic()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%;">开启音乐并进入</button>
+                <h3>欢迎回来 🤍</h3>
+                <p style="color:#666; font-size:0.9em; margin-bottom:15px;">当前身份：${savedRole === 'admin' ? '我们' : '访客'}</p>
+                <button onclick="startWithMusic()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%;">继续</button>
+                <button onclick="logout()" style="background:none; color:white; border:none; margin-top:10px; font-size:0.8em; text-decoration:underline; cursor:pointer; opacity:0.8;">切换身份</button>
             `;
         }
 
         // 设置默认时间
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('dateInput').value = now.toISOString().slice(0, 16);
+        const dateInput = document.getElementById('dateInput');
+        if(dateInput) dateInput.value = now.toISOString().slice(0, 16);
     };
+
+    function logout() {
+        localStorage.removeItem('unlocked_role');
+        location.reload(); 
+    }
 
     function updateDays() {
         const start = new Date(START_DATE);
@@ -209,45 +219,33 @@
 
     function checkPassword() {
         const pwd = document.getElementById('passwordInput').value;
-        const audio = document.getElementById('bgMusic');
-        const musicBtn = document.getElementById('musicBtn');
-
         if (pwd === CORRECT_PASSWORD) {
-            localStorage.setItem('unlocked_love', 'true');
-            
-            // 核心：点击进入的同时播放音乐
-            audio.play().then(() => {
-                musicBtn.style.display = 'flex';
-                musicBtn.classList.add('music-on');
-            }).catch(e => {
-                console.log("音频自动播放受限，已显示按钮手动开启");
-                musicBtn.style.display = 'flex';
-            });
-
-            unlockPage();
+            localStorage.setItem('unlocked_role', 'admin');
+            startWithMusic();
         } else { 
             alert("口令错误"); 
         }
     }
-    // 专门为“已解锁”用户准备的开启函数
+
+    function enterAsGuest() {
+        localStorage.setItem('unlocked_role', 'guest');
+        startWithMusic();
+    }
+
     function startWithMusic() {
         const audio = document.getElementById('bgMusic');
         const musicBtn = document.getElementById('musicBtn');
-
-        // 尝试播放音乐
         if (audio) {
             audio.play().then(() => {
                 if (musicBtn) {
                     musicBtn.style.display = 'flex';
                     musicBtn.classList.add('music-on');
                 }
-            }).catch(e => console.log("播放被拦截"));
+            }).catch(e => console.log("播放受限"));
         }
-
         unlockPage();
     }
 
-    // 新增：手动开关音乐的函数
     function toggleMusic() {
         const audio = document.getElementById('bgMusic');
         const musicBtn = document.getElementById('musicBtn');
@@ -261,17 +259,18 @@
     }
 
     function unlockPage() {
-        const overlay = document.getElementById('loginOverlay');
-        if (overlay) overlay.classList.add('hidden');
+        document.getElementById('loginOverlay').classList.add('hidden');
+        document.getElementById('musicBtn').style.display = 'flex';
         
-        // 加个小延时让过渡更平滑
-        setTimeout(() => {
-            loadStories();
-        }, 300);
+        const role = localStorage.getItem('unlocked_role');
+        const fab = document.querySelector('.fab');
+        // 只有管理员才能看到悬浮添加按钮
+        if (fab) {
+            fab.style.display = (role === 'admin') ? 'flex' : 'none';
+        }
+        loadStories();
     }
 
-    // 2. 加载故事
-    // 2. 加载故事
     async function loadStories() {
         const { data, error } = await _supabase
             .from('stories')
@@ -280,29 +279,22 @@
 
         if (error) return;
 
-        // 1. 提取所有有图片的记录，存入轮播数组
         bgImages = data.filter(item => item.img_url).map(item => item.img_url).slice(0, 5);
         
-        // 2. 开启轮播
         if (bgImages.length > 0) {
             startBgSlideshow();
         } else {
             document.getElementById('heroBg').style.backgroundImage = "url('https://picsum.photos/1920/1080?love')";
         }
 
-        // 3. 渲染下方的列表
         const list = document.getElementById("storyList");
         list.innerHTML = '';
         data.forEach(item => {
             const li = document.createElement("li");
             const d = new Date(item.event_date);
-            const year = d.getFullYear();
-            const month = (d.getMonth() + 1).toString().padStart(2, '0');
-            const day = d.getDate().toString().padStart(2, '0');
-            const dateStr = `${year}年${month}月${day}日`;
+            const dateStr = `${d.getFullYear()}年${(d.getMonth()+1).toString().padStart(2,'0')}月${d.getDate().toString().padStart(2,'0')}日`;
             
-            // --- 注意下面这里的反引号使用 ---
-           li.innerHTML = `
+            li.innerHTML = `
             <div class="content-card">
                 <span class="time-tag">${dateStr}</span>
                 <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
@@ -313,53 +305,43 @@
         });
     }
 
-// 4. 新增：控制顶部背景轮播的函数
-function startBgSlideshow() {
-    // 如果已经有计时器在跑，先清除，防止重复
-    if (bgTimer) clearInterval(bgTimer);
-    
-    const heroBg = document.getElementById('heroBg');
-    
-    // 立即显示第一张
-    heroBg.style.backgroundImage = `url(${bgImages[0]})`;
-    
-    // 如果只有一张图就不轮播了
-    if (bgImages.length <= 1) return;
+    function startBgSlideshow() {
+        if (bgTimer) clearInterval(bgTimer);
+        const heroBg = document.getElementById('heroBg');
+        heroBg.style.backgroundImage = `url(${bgImages[0]})`;
+        if (bgImages.length <= 1) return;
 
-    // 每 5 秒换一张
-    bgTimer = setInterval(() => {
-        currentBgIndex = (currentBgIndex + 1) % bgImages.length;
-        // 加上淡入淡出效果
-        heroBg.style.backgroundImage = `url(${bgImages[currentBgIndex]})`;
-    }, 10000);
-}
-    // 3. 保存故事
-  async function saveStory() {
+        bgTimer = setInterval(() => {
+            currentBgIndex = (currentBgIndex + 1) % bgImages.length;
+            heroBg.style.backgroundImage = `url(${bgImages[currentBgIndex]})`;
+        }, 10000);
+    }
+
+    async function saveStory() {
+        if (localStorage.getItem('unlocked_role') !== 'admin') {
+            alert("访客模式无法发布内容哦~");
+            return;
+        }
         const title = document.getElementById('titleInput').value;
         const content = document.getElementById('contentInput').value;
         let event_date = document.getElementById('dateInput').value;
-// 如果用户没选具体时间，datetime-local 可能只返回日期
-// 我们确保它符合 ISO 格式，Supabase 就能精准识别时区
+        
         if (event_date) {
-            const localDate = new Date(event_date);
-            event_date = localDate.toISOString(); 
+            event_date = new Date(event_date).toISOString(); 
         }
-        const fileInput = document.getElementById('fileInput');
         
         if (!content) return alert("内容是必须的哦");
 
         const btn = document.getElementById('saveBtn');
         btn.disabled = true; 
-        btn.innerText = "写入时间轴...";
+        btn.innerText = "写入中...";
 
         try {
             let img_url = "";
-            // --- 图片处理开始 ---
+            const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                
-                // 核心修复：这里不再使用 file.name，而是生成一个纯数字的文件名
-                const fileExt = file.name.split('.').pop(); // 提取后缀名
+                const fileExt = file.name.split('.').pop();
                 const newFileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
 
                 const { data, error: upError } = await _supabase.storage
@@ -367,39 +349,31 @@ function startBgSlideshow() {
                     .upload(newFileName, file);
                 
                 if (upError) throw upError;
-
-                // 获取不带乱码的纯净 URL
                 img_url = _supabase.storage.from('images').getPublicUrl(newFileName).data.publicUrl;
             }
-            // --- 图片处理结束 ---
 
-            // 将数据存入数据库
             const { error: dbError } = await _supabase.from('stories').insert([{ 
-                title, 
-                content, 
-                img_url, 
-                event_date 
+                title, content, img_url, event_date 
             }]);
 
             if (dbError) throw dbError;
 
-            // 成功后关闭弹窗并刷新列表
             closeModal(); 
             loadStories();
             
-            // 重置输入框
             document.getElementById('titleInput').value = '';
             document.getElementById('contentInput').value = '';
             fileInput.value = '';
 
         } catch (e) { 
-            alert("保存失败，请检查网络或图片大小"); 
+            alert("保存失败"); 
             console.error(e); 
         } finally { 
             btn.disabled = false; 
             btn.innerText = "保存到时间轴"; 
         }
     }
+
     function openModal() { document.getElementById('addModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('addModal').style.display = 'none'; }
 </script>
