@@ -236,30 +236,30 @@
         document.getElementById('daysCount').innerText = `这是我们相识的第 ${diff} 天`;
     }
 
-    async function checkPassword() {
-        let pwdInput = document.getElementById('passwordInput').value;
-    
-        // 1. 自动纠正：全角转半角
-        pwdInput = pwdInput.replace(/[\uFF10-\uFF19]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
+    function checkPassword() {
+        let input = document.getElementById('passwordInput').value;
         
-        // 2. 强力清洗：去掉所有空格、换行符、制表符（彻底消灭 535bd5 那个错误指纹）
-        pwdInput = pwdInput.replace(/\s+/g, '');
-    
-        if (!pwdInput) return alert("请输入口令哦");
-    
-        const inputHash = await sha256(pwdInput);
-    
-        // 如果你依然担心，可以先留着这个 alert 看看是不是变成了 626966 开头
-        // alert("清洗后的哈希值：" + inputHash);
-    
-        if (inputHash === PASSWORD_HASH) {
+        // 基础清洗（全角转半角，去空格）
+        input = input.replace(/[\uFF10-\uFF19]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
+        input = input.replace(/\s+/g, '');
+
+        if (!input) return alert("请输入口令哦");
+
+       
+        let magic = 0;
+        for (let i = 0; i < input.length; i++) {
+           
+            magic += (input.charCodeAt(i) * (i + 1)) ^ (0x521 + i);
+        }
+        
+        
+        if (magic === (Math.pow(73, 2) - 11)) { 
             localStorage.setItem('unlocked_role', 'admin');
             startWithMusic();
-        } else { 
-            alert("口令不对哦，请检查输入是否为 0319"); 
+        } else {
+            alert("口令不对哦~");
         }
     }
-
     function enterAsGuest() {
         localStorage.setItem('unlocked_role', 'guest');
         startWithMusic();
