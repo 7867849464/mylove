@@ -132,11 +132,11 @@
         <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px;">进入</button>
     </div>
 </div>
-    <audio id="bgMusic" loop>
+    <audio id="bgMusic" loop preload="auto">
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
 </audio>
 
-<div id="musicControl" onclick="toggleMusic()" style="position:fixed; bottom:20px; left:20px; z-index:1000; cursor:pointer; font-size:24px; display:none; opacity:0.6;">🎵</div>
+<div id="musicBtn" class="music-control" onclick="toggleMusic()">🎵</div>
 
 <div class="hero-section">
     <div id="heroBg"></div>
@@ -233,8 +233,16 @@
     }
 
     function unlockPage() {
-        document.getElementById('loginOverlay').classList.add('hidden');
-        document.getElementById('musicBtn').style.display = 'flex'; // 确保按钮显示
+        const loginOverlay = document.getElementById('loginOverlay');
+        const btn = document.getElementById('musicBtn');
+        
+        if (loginOverlay) loginOverlay.classList.add('hidden');
+        
+        // 安全判断：如果找到了按钮才显示
+        if (btn) {
+            btn.style.display = 'flex';
+        }
+        
         loadStories();
     }
 
