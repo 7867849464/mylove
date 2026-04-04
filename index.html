@@ -184,14 +184,12 @@
 
     // 加密工具
     async function sha256(message) {
-    // 强制转换为字符串，防止输入是非字符串类型
-        const msgUint8 = new TextEncoder().encode(String(message)); 
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    // 强制转换为字符串，并确保使用标准的 UTF-8
+        const msgBuffer = new TextEncoder().encode(String(message));
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
-
     window.onload = () => {
         updateDays();
         const savedRole = localStorage.getItem('unlocked_role');
@@ -221,13 +219,20 @@
     }
 
     async function checkPassword() {
-    // 获取值并去掉前后空格
-        const pwdInput = document.getElementById('passwordInput').value.trim();
+        let pwdInput = document.getElementById('passwordInput').value;
+    
+        // 1. 自动纠正：把中文全角数字转为英文半角数字
+        pwdInput = pwdInput.replace(/[\uFF10-\uFF19]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
         
+        // 2. 自动清理：去掉可能误触的空格或换行
+        pwdInput = pwdInput.trim();
+    
         if (!pwdInput) return alert("请输入口令哦");
     
         const inputHash = await sha256(pwdInput);
-        console.log("你的输入加密后是:", inputHash); // 调试用：可以在控制台看到加密后的值
+    
+        // 调试开关（测试成功后可以删掉下面这行）
+        // console.log("当前设备生成的指纹:", inputHash);
     
         if (inputHash === PASSWORD_HASH) {
             localStorage.setItem('unlocked_role', 'admin');
