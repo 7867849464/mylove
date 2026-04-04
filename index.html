@@ -184,12 +184,23 @@
 
     // 加密工具
     async function sha256(message) {
-    // 强制转换为字符串，并确保使用标准的 UTF-8
-        const msgBuffer = new TextEncoder().encode(String(message));
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        try {
+            // 确保在非安全环境下也能报错提示
+            if (!window.crypto || !window.crypto.subtle) {
+                throw new Error("当前环境不支持加密 API，请使用 HTTPS 访问！");
+            }
+            const msgBuffer = new TextEncoder().encode(String(message));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch (e) {
+            console.error("加密失败:", e);
+            alert(e.message);
+            return null;
+        }
     }
+
+    
     window.onload = () => {
         updateDays();
         const savedRole = localStorage.getItem('unlocked_role');
@@ -219,26 +230,24 @@
     }
 
     async function checkPassword() {
-        let pwdInput = document.getElementById('passwordInput').value;
-    
-        // 1. 自动纠正：把中文全角数字转为英文半角数字
+        let pwdInput = document.getElementById('passwordInput').value.trim();
+        // 全角转半角
         pwdInput = pwdInput.replace(/[\uFF10-\uFF19]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
-        
-        // 2. 自动清理：去掉可能误触的空格或换行
-        pwdInput = pwdInput.trim();
     
         if (!pwdInput) return alert("请输入口令哦");
     
         const inputHash = await sha256(pwdInput);
+        
+        if (!inputHash) return; // 加密失败直接拦截
     
-        // 调试开关（测试成功后可以删掉下面这行）
-        // console.log("当前设备生成的指纹:", inputHash);
+        // 【终极调试】如果还是不对，取消下面这行的注释，看看到底算出来是什么
+        // alert("加密结果：" + inputHash);
     
         if (inputHash === PASSWORD_HASH) {
             localStorage.setItem('unlocked_role', 'admin');
             startWithMusic();
         } else { 
-            alert("口令不对哦，再想想？"); 
+            alert("口令不对哦，请检查输入法是否为英文输入法的数字"); 
         }
     }
 
