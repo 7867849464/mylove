@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="我们的故事">
     
     <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         /* ... 之前的样式 ... */
         :root { --primary-color: #92CBCA; --bg-color: #f7f9f9; --text-color: #444; --card-bg: #ffffff; }
@@ -179,7 +179,15 @@
     const PASSWORD_HASH = '6269668d27773229b0f4439f0413028e3518a4a58f480373e44927b2e1f98f62';
     const START_DATE = '2025-11-12'; 
 
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // 将初始化移到全局，并带上你刚才加的“防拦截”参数
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: {
+            persistSession: false, 
+            autoRefreshToken: false,
+            detectSessionInUrl: false
+        }
+    });
 
     // 加密工具
     async function sha256(message) {
