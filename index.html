@@ -252,7 +252,7 @@
             magic += (input.charCodeAt(i) * (i + 1)) ^ (0x521 + i);
         }
         
-        
+        console.log("当前输入算出的数字是:", magic);
         if (magic === (Math.pow(73, 2) - 11)) { 
             localStorage.setItem('unlocked_role', 'admin');
             startWithMusic();
