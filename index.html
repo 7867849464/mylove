@@ -3,21 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>我们的故事 - txy & sry</title>
+    <title>我们的故事 - sry和txy</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary-color: #92CBCA; --bg-color: #f7f9f9; --text-color: #444; --card-bg: #ffffff; }
         body { background-color: var(--bg-color); font-family: 'PingFang SC', sans-serif; color: var(--text-color); margin: 0; }
         
         /* 顶部浪漫区域 */
+        /* 顶部区域容器 */
         .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://picsum.photos/1920/1080?love');
-            background-size: cover; background-position: center;
-            height: 300px; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            position: relative;
+            height: 300px; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            color: white; 
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            overflow: hidden; /* 必须：保证背景图不溢出到下方 */
         }
-        .hero-section h1 { font-size: 1.5em; margin-bottom: 10px; font-weight: 300; letter-spacing: 2px; }
-        .hero-section p { font-size: 0.9em; opacity: 0.9; }
+        
+        /* 专门负责背景图显示的层 */
+        #heroBg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 2s ease-in-out; /* 淡入淡出动画 */
+            z-index: 1; /* 放在底层 */
+        }
+        
+        /* 黑色半透明遮罩，防止背景太亮看不清字 */
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 2; /* 放在图片上方，文字下方 */
+        }
+        
+        /* 确保文字在最顶层 */
+        .hero-section h1, .hero-section p { 
+            position: relative; 
+            z-index: 3; 
+        }
 
         /* 时间轴核心样式 */
         #timeline { position: relative; max-width: 800px; margin: -30px auto 50px; padding: 20px; z-index: 10; }
@@ -66,12 +94,15 @@
 <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
         <h3>🤍 我们的故事</h3>
-        <input type="password" id="passwordInput" placeholder="输入口令解锁...">
+        <input type="password" id="passwordInput" placeholder="输入口令解锁...（你的阳历生日纯四位数字哦）">
         <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px;">进入</button>
     </div>
 </div>
 
 <div class="hero-section">
+    <div id="heroBg"></div>
+    <div class="hero-overlay"></div>
+    
     <h1>从相遇那天起，我们的故事开始书写</h1>
     <p id="daysCount">正在加载我们的时光...</p>
 </div>
@@ -98,6 +129,9 @@
 </div>
 
 <script>
+    let bgImages = []; 
+    let currentBgIndex = 0;
+    let bgTimer = null; // 计时器变量
     // --- 请填写你的 Supabase 配置 ---
     const SUPABASE_URL = 'https://vjhzbpzdewthyklhxbmx.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_PPGrvCINKV_SxyxcQ0pygg_JWkMAHgp';
@@ -137,34 +171,77 @@
 
     // 2. 加载故事
     async function loadStories() {
-        const { data, error } = await _supabase
-            .from('stories')
-            .select('*')
-            .order('event_date', { ascending: false }); // 按自定义日期倒序
+    const { data, error } = await _supabase
+        .from('stories')
+        .select('*')
+        .order('event_date', { ascending: false });
 
-        if (error) return;
-        const list = document.getElementById("storyList");
-        list.innerHTML = '';
-        data.forEach(item => {
-            const li = document.createElement("li");
-            const d = new Date(item.event_date);
-            const dateStr = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
-            li.innerHTML = `
-                <div class="content-card">
-                    <span class="time-tag">${dateStr}</span>
-                    <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
-                    <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
-                    ${item.img_url ? `<img src="${item.img_url}" class="story-img">` : ''}
-                </div>`;
-            list.appendChild(li);
-        });
+    if (error) return;
+
+    // 1. 提取所有有图片的记录，存入轮播数组
+    bgImages = data.filter(item => item.img_url && item.img_url !== "").map(item => item.img_url);
+    
+    // 2. 开启轮播
+    if (bgImages.length > 0) {
+        startBgSlideshow();
+    } else {
+        // 如果一张图都没有，显示一张默认浪漫图
+        document.getElementById('heroBg').style.backgroundImage = "url('https://picsum.photos/1920/1080?love')";
     }
 
+    // 3. 渲染下方的列表（这部分保持你原来的逻辑即可）
+    const list = document.getElementById("storyList");
+    list.innerHTML = '';
+    data.forEach(item => {
+        const li = document.createElement("li");
+        const d = new Date(item.event_date);
+// 使用本地时间格式化
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        const dateStr = `${year}年${month}月${day}日`;
+        li.innerHTML = `
+            <div class="content-card">
+                <span class="time-tag">${dateStr}</span>
+                <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
+                <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
+                ${item.img_url ? <img src="${item.img_url}" class="story-img" onclick="window.open(this.src)"> : ''}
+            </div>`;
+        list.appendChild(li);
+    });
+}
+
+// 4. 新增：控制顶部背景轮播的函数
+function startBgSlideshow() {
+    // 如果已经有计时器在跑，先清除，防止重复
+    if (bgTimer) clearInterval(bgTimer);
+    
+    const heroBg = document.getElementById('heroBg');
+    
+    // 立即显示第一张
+    heroBg.style.backgroundImage = `url(${bgImages[0]})`;
+    
+    // 如果只有一张图就不轮播了
+    if (bgImages.length <= 1) return;
+
+    // 每 5 秒换一张
+    bgTimer = setInterval(() => {
+        currentBgIndex = (currentBgIndex + 1) % bgImages.length;
+        // 加上淡入淡出效果
+        heroBg.style.backgroundImage = `url(${bgImages[currentBgIndex]})`;
+    }, 5000);
+}
     // 3. 保存故事
   async function saveStory() {
         const title = document.getElementById('titleInput').value;
         const content = document.getElementById('contentInput').value;
-        const event_date = document.getElementById('dateInput').value;
+        let event_date = document.getElementById('dateInput').value;
+// 如果用户没选具体时间，datetime-local 可能只返回日期
+// 我们确保它符合 ISO 格式，Supabase 就能精准识别时区
+        if (event_date) {
+            const localDate = new Date(event_date);
+            event_date = localDate.toISOString(); 
+        }
         const fileInput = document.getElementById('fileInput');
         
         if (!content) return alert("内容是必须的哦");
