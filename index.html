@@ -206,7 +206,7 @@
                     <span class="time-tag">${dateStr}</span>
                     <h3 style="margin:0; font-size:1em;">${item.title || ''}</h3>
                     <p style="margin:8px 0; color:#555; font-size:0.95em; white-space:pre-wrap;">${item.content}</p>
-                    item.img_url ? <img src="${item.img_url}" class="story-img" loading="lazy" onclick="window.open(this.src)"> : ''
+                    ${item.img_url ? <img src="${item.img_url}" class="story-img" loading="lazy" onclick="window.open(this.src)"> : ''}
                 </div>`;
             list.appendChild(li);
         });
