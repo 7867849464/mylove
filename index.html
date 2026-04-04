@@ -237,25 +237,26 @@
     }
 
     async function checkPassword() {
-        let pwdInput = document.getElementById('passwordInput').value.trim();
-        // 全角转半角
+        let pwdInput = document.getElementById('passwordInput').value;
+    
+        // 1. 自动纠正：全角转半角
         pwdInput = pwdInput.replace(/[\uFF10-\uFF19]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
+        
+        // 2. 强力清洗：去掉所有空格、换行符、制表符（彻底消灭 535bd5 那个错误指纹）
+        pwdInput = pwdInput.replace(/\s+/g, '');
     
         if (!pwdInput) return alert("请输入口令哦");
     
         const inputHash = await sha256(pwdInput);
-        
-        if (!inputHash) return; // 加密失败直接拦截
     
-        // 【终极调试】如果还是不对，取消下面这行的注释，看看到底算出来是什么
-        alert("你输入的口令加密后是：\n" + inputHash + "\n\n代码里要求的哈希是：\n" + PASSWORD_HASH);
-        // alert("加密结果：" + inputHash);
+        // 如果你依然担心，可以先留着这个 alert 看看是不是变成了 626966 开头
+        // alert("清洗后的哈希值：" + inputHash);
     
         if (inputHash === PASSWORD_HASH) {
             localStorage.setItem('unlocked_role', 'admin');
             startWithMusic();
         } else { 
-            alert("口令不对哦，请检查输入法是否为英文输入法的数字"); 
+            alert("口令不对哦，请检查输入是否为 0319"); 
         }
     }
 
