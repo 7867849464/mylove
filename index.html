@@ -131,7 +131,7 @@
         <input type="password" id="passwordInput" placeholder="输入密码解锁编辑模式~（你的生日四位数字）">
         <button onclick="checkPassword()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; margin-top:10px;">写故事进入~</button>
         
-        <button onclick="enterAsGuest()" style="background:none; border:1px solid white; color:white; padding:10px; border-radius:25px; width:100%; margin-top:15px; font-size:0.85em;">只是欣赏~</button>
+        <button onclick="enterAsGuest()" style="background:rgba(0,0,0,0.03); border:1px solid #eee; color:#666; padding:10px; border-radius:25px; width:100%; margin-top:15px; font-size:0.85em; cursor:pointer;">只是欣赏~</button>
     </div>
 </div>
     <audio id="bgMusic" loop>
@@ -197,7 +197,7 @@
                 <button onclick="startWithMusic()" style="background:var(--primary-color); color:white; border:none; padding:12px; border-radius:25px; width:100%; font-weight:bold; cursor:pointer;">继续</button>
                 
                 <div style="margin-top: 20px;">
-                    <span onclick="logout()" style="color:#888; font-size:0.85em; text-decoration:underline; cursor:pointer; padding:5px;">切换身份</span>
+                    <span onclick="logout()" style="color:#5a8a89; font-size:0.85em; text-decoration:underline; cursor:pointer; padding:5px;">切换身份</span>
                 </div>
             `;
         }
