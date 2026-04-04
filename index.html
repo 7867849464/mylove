@@ -184,10 +184,12 @@
 
     // 加密工具
     async function sha256(message) {
-        const msgBuffer = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    // 强制转换为字符串，防止输入是非字符串类型
+        const msgUint8 = new TextEncoder().encode(String(message)); 
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
     }
 
     window.onload = () => {
@@ -219,8 +221,14 @@
     }
 
     async function checkPassword() {
-        const pwdInput = document.getElementById('passwordInput').value;
+    // 获取值并去掉前后空格
+        const pwdInput = document.getElementById('passwordInput').value.trim();
+        
+        if (!pwdInput) return alert("请输入口令哦");
+    
         const inputHash = await sha256(pwdInput);
+        console.log("你的输入加密后是:", inputHash); // 调试用：可以在控制台看到加密后的值
+    
         if (inputHash === PASSWORD_HASH) {
             localStorage.setItem('unlocked_role', 'admin');
             startWithMusic();
