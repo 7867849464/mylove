@@ -13,6 +13,7 @@
     
     <link rel="manifest" href="manifest.json">
     <script src="supabase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.2.1/compressor.min.js"></script>
     <style>
         :root { --primary-color: #92CBCA; --bg-color: #f7f9f9; --text-color: #444; --card-bg: #ffffff; }
         body { background-color: var(--bg-color); font-family: 'PingFang SC', sans-serif; color: var(--text-color); margin: 0; }
@@ -188,6 +189,23 @@
             transform: scale(1.02); 
             filter: brightness(0.9);
         }
+        .love-quote {
+            position: relative;
+            z-index: 3;
+            font-size: 1.2em;
+            font-style: italic;
+            margin: 10px 0 20px 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        @media (max-width: 600px) {
+            .love-quote {
+                font-size: 1em;
+                padding: 0 20px;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -212,6 +230,7 @@
     <div class="hero-overlay"></div>
     
     <h1>从相遇那天起，我们的故事开始书写</h1>
+    <p class="love-quote">“ 遇见你，是所有故事的开始”</p>
     <p id="daysCount">正在加载我们的时光</p>
 </div>
 
@@ -418,40 +437,59 @@
             alert("访客模式无法发布内容哦~");
             return;
         }
-
+    
         const btn = document.getElementById('saveBtn');
         const fileInput = document.getElementById('fileInput');
         const title = document.getElementById('titleInput').value;
         const content = document.getElementById('contentInput').value;
         let event_date = document.getElementById('dateInput').value;
         const author = document.querySelector('input[name="author"]:checked').value;
-
+    
         if (!content) return alert("内容是必须的哦");
-
-        if (fileInput.files.length > 0) {
-            if (fileInput.files[0].size > 5 * 1024 * 1024) {
-                return alert("图片太大了，请压缩到 5MB 以内再上传哦~");
-            }
+    
+        const file = fileInput.files[0];
+        btn.disabled = true;
+    
+        let finalFile = file;
+        if (file) {
+            btn.innerText = "上传图片中...";
+            finalFile = await new Promise((resolve) => {
+                new Compressor(file, {
+                    quality: 0.6,
+                    maxWidth: 1200,
+                    success(result) {
+                   
+                        const compressedFile = new File([result], file.name, {
+                            type: file.type,
+                            lastModified: Date.now(),
+                        });
+                        resolve(compressedFile);
+                    },
+                    error(err) {
+                        console.error('上传失败:', err.message);
+                        resolve(file); 
+                    }
+                });
+            });
         }
-
-        btn.disabled = true; 
+    
         btn.innerText = "写入中...";
-
         try {
             let img_url = "";
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const fileExt = file.name.split('.').pop();
+            if (finalFile) {
+                
+                const fileExt = finalFile.name ? finalFile.name.split('.').pop() : 'jpg';
                 const newFileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
-
+    
                 const { data, error: upError } = await _supabase.storage
                     .from('images')
-                    .upload(newFileName, file);
+                    .upload(newFileName, finalFile); 
                 
                 if (upError) throw upError;
                 img_url = _supabase.storage.from('images').getPublicUrl(newFileName).data.publicUrl;
             }
-
+    
+        
             const { error: dbError } = await _supabase.from('stories').insert([{ 
                 title, 
                 content, 
@@ -459,18 +497,19 @@
                 author,
                 event_date: event_date ? new Date(event_date).toISOString() : new Date().toISOString()
             }]);
-
+    
             if (dbError) throw dbError;
-
+    
             closeModal(); 
             await loadStories();
             window.scrollTo({ top: document.getElementById('timeline').offsetTop - 50, behavior: 'smooth' });
             
+
             document.getElementById('titleInput').value = '';
             document.getElementById('contentInput').value = '';
             fileInput.value = '';
             document.querySelector('input[name="author"][value="sry"]').checked = true;
-
+    
         } catch (e) { 
             alert("保存失败"); 
             console.error(e); 
